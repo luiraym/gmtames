@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Applicability Domain toolbox for MATLAB</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta name="generator" content="HAPedit 3.0">
+
+<link href = "style_structure.css" rel="stylesheet" type="text/css">
+<link href = "style_text.css" rel="stylesheet" type="text/css">
+<link href = "style_tables.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+<div id="container">
+<a name="top"></a>
+
+    <div id="header">
+		<iframe src="header.htm" width="740" height="60" scrolling="no" frameborder="0">
+  			no i_frames allowed :: change browser
+	  	</iframe>
+    </div>
+
+    <div id="content">
+
+		<table width="740" border="0" cellpadding="0" cellspacing="0">
+  		<tr>
+		<td width="150" valign="top">
+		
+		<iframe src="menu_lateral.htm" width="135" height="320" scrolling="no" frameborder="0">
+  			no i_frames allowed :: change browser
+	  	</iframe>
+		
+		</td>
+
+    	<td valign="top">
+
+		  <div align="justify">
+		    <div align="justify">
+		      <div id="tab_duo_contenitor" class="text">
+		      <span class="title_page">Using the GUI -&gt; calculate menu</span> 		
+		      <BR>
+		      <BR>
+      
+		    <div id="tab_duo_text">
+	            <div id="tab_space_lateral"><a href="#sub_1" class="lnk_text">How to calculate the AD</a></div>
+	            <div id="tab_space_lateral"><a href="#sub_2" class="lnk_text">Options for AD methods</a> </div>
+				<div id="tab_space_lateral"><a href="#sub_3" class="lnk_text">Advanced options for AD methods</a> </div>  
+	   	        </div>
+		      <BR>
+              <a name="sub_1"></a>
+	            <BR>
+		          
+		        <span class="title_paragraph">How to calculate the AD</span><BR>
+                <BR>
+	            Once training and test set have been <a href="gui_file.htm" class="lnk_text">loaded</a>, just  select &quot;calculate-&gt;Applicability Domain&quot; In order to calculate the AD methods. The following form for setting the AD options will appear. In the setting form it is possible to check the AD methods to be calculated. Then, just press the &quot;calculate AD&quot; button. Calculation will start and a resume of the status of the calcuations and optimisation procedures (if any) will appear on the MATLAB command window.<BR><BR>
+				<center>
+	            <img src="gui_2.gif" width="502" height="638">	            
+				</center>
+				<BR>
+		        [<a href="#top" class="lnk_text">-> top</a>]
+	            <BR>
+	            <BR> 
+  
+	          <a name="sub_2" id="sub_2"></a>
+	            <BR>
+		          
+	          <span class="title_paragraph">Options for AD methods</span>
+	            <BR>
+	            <BR>
+	            <strong>Data scaling</strong>: is the data scaling procedure applied to the dataset for  AD methods which are scaling-dependent, such as distance based methods and bounding box based on PCA. Available scaling are: autoscaling, range scaling between 0 and 1, mean centering. <BR><BR>
+                <strong>Distance measure</strong>: is the distance measure used for distance based methods (distance from centroid and both variable and fixed kNN). Available distance measures are: euclidean, manhattan, mahalanobis.  <BR>
+                <BR>
+                <strong>Distance from centroid - percentile</strong>: is the percetile to be used to define the threshold for distance to centroid approach (suggested: 95). Details on how percentile is used to calculate the distance threshold are given in the following paper: F. Sahigara, K. Mansouri, D. Ballabio, A. Mauri, V. Consonni, R. Todeschini, Comparison of different approaches to define the Applicability Domain of QSAR models, <em>Molecules</em> (<strong>2012</strong>), 17, 4791-4810.  <BR>
+                <BR>
+                <strong>kNN with fixed k   - k value</strong>: is the k value to be used for the k Nearest Neighbours (kNN) approach with fixed k. Average distances of all the training samples from
+                their k nearest neighbours are calculated and used to define
+                a unique threshold to decide if a test sample is inside
+                or outside the model&rsquo;s AD. Details are given in the following paper: F. Sahigara, D. Ballabio, R. Todeschini, V. Consonni, Defining a novel k-Nearest Neighbours approach to assess the applicability domain of a QSAR model for reliable predictions, <em>Journal of Cheminformatics</em> (<strong>2013</strong>), 5:27, 1-9.<BR>
+                <BR>
+                <strong>kNN with variable k - optimal k value</strong>: is the optimal k value for the k Nearest Neighbours (kNN) approach with variable k. The k value can be defined in the associated combo box; moreover, it is possible to set an automatic (or user) selection of the best k value on the basis of a montecarlo procedure. Details are given in the following paper: F. Sahigara, D. Ballabio, R. Todeschini, V. Consonni, Defining a novel k-Nearest Neighbours approach to assess the applicability domain of a QSAR model for reliable predictions, <em>Journal of Cheminformatics</em> (<strong>2013</strong>), 5:27, 1-9.<BR>
+                <BR>
+                <strong>Potential functions  - kernel</strong>: is the kernel of Potential Functions (gaussian or  triangular). Details are given in the following papers: T.I. Netzeva, A. Worth, T. Aldenberg, R. Benigni, M.T.D. Cronin, P. 
+Gramatica, J.S. Jaworska, S. Kahn, G. Klopman, C.A. Marchant,  et al. 
+Current status of methods for defining the applicability domain of 
+(quantitative) structure-activity relationships. The report and 
+recommendations of ECVAM Workshop 52. <em>ATLA: Alternatives to Laboratory Animals</em> (<strong>2005</strong>), 33, 155&ndash;173.
+J. Jaworska, N. Nikolova-Jeliazkova, T. Aldenberg. QSAR applicabilty domain estimation by projection of the training set descriptor space: A review. <em>ATLA: Alternatives to Laboratory Animals</em> (<strong>2005</strong>), 33, 445&ndash;459.<BR>
+	            <BR>
+	            [<a href="#top" class="lnk_text">-> top</a>] <BR>
+                <BR>
+                <a name="sub_3" id="sub_3"></a> <BR>
+                <span class="title_paragraph">Advanced options for AD methods</span> <BR>
+                <BR>
+                By clicking on &quot;show advanced settings&quot; it is possible to open enlarge the setting form and change other options for calculating the AD methods.<BR>
+                <BR>
+                <strong>Leverage - threshold factor</strong>: is the factor to be multiplied with the leverage average in order to define the leverage threshold (suggested: 2.5). <BR>
+                <BR>
+
+                <strong>kNN with variable k - % validation set, iterations and maximum k value</strong>: these are a)  percentage of samples to be used in the validation set, b) number of iterations and c) maximum number of neighbours considered during the k-optimization based on the montecarlo procedure  for the k Nearest Neighbours (kNN) approach with variable k. Details on the k optimisation are given  in the following paper: F. Sahigara, D. Ballabio, R. Todeschini, V. Consonni, Defining a novel k-Nearest Neighbours approach to assess the applicability domain of a QSAR model for reliable predictions, <em>Journal of Cheminformatics</em> (<strong>2013</strong>), 5:27, 1-9.<BR>
+                <BR>
+                <strong>Potential functions - smoothing value</strong>: is the smoothing coefficient to be used for Potential Functions. Smoothing value shlould be similar to variable standard deviations. The coefficient can be user defined or automatically optimised in leave-one-out.<BR>
+<BR>
+[<a href="#top" class="lnk_text">-> top</a>] <BR>
+  
+              <BR><BR>
+              &nbsp;
+              </div>
+	      </div>
+		    <div id="tab_duo_contenitor" class="text">
+		      <div class="text"></div>
+	      </div></td>
+  		</tr>
+	  </table>
+
+    </div>
+
+    <div id="footer">
+		<iframe src="footer.htm" width="700" height="13" scrolling="no" frameborder="0">
+  			no i_frames allowed :: change browser
+	  	</iframe>
+	</div>
+</div>
+</body>
+</html>

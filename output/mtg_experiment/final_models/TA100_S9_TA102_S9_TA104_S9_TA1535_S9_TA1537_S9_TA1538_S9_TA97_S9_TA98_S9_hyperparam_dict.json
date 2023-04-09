@@ -1,0 +1,1 @@
+{"n_layers": 4, "architecture": "linear", "lr": 0.001, "n_epochs": 100, "best_trial_num": 85, "tasks": ["TA100_S9", "TA102_S9", "TA104_S9", "TA1535_S9", "TA1537_S9", "TA1538_S9", "TA97_S9", "TA98_S9"]}

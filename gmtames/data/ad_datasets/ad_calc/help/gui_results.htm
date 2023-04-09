@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Applicability Domain toolbox for MATLAB</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta name="generator" content="HAPedit 3.0">
+
+<link href = "style_structure.css" rel="stylesheet" type="text/css">
+<link href = "style_text.css" rel="stylesheet" type="text/css">
+<link href = "style_tables.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+<div id="container">
+<a name="top"></a>
+
+    <div id="header">
+		<iframe src="header.htm" width="740" height="60" scrolling="no" frameborder="0">
+  			no i_frames allowed :: change browser
+	  	</iframe>
+    </div>
+
+    <div id="content">
+
+		<table width="740" border="0" cellpadding="0" cellspacing="0">
+  		<tr>
+		<td width="150" valign="top">
+		
+		<iframe src="menu_lateral.htm" width="135" height="320" scrolling="no" frameborder="0">
+  			no i_frames allowed :: change browser
+	  	</iframe>
+		
+		</td>
+
+    	<td valign="top">
+
+		  <div align="justify">
+		    <div align="justify">
+		      <div id="tab_duo_contenitor" class="text">
+		      <span class="title_page">Using the GUI -&gt; results menu</span> 		
+		      <BR>
+		      <BR>
+      
+		    <div id="tab_duo_text">
+	            <div id="tab_space_lateral"><a href="#sub_1" class="lnk_text">Test set results</a></div>
+	            <div id="tab_space_lateral"><a href="#sub_2" class="lnk_text">Consensus</a> </div>
+		        <div id="tab_space_lateral"><a href="#sub_3" class="lnk_text">William plot</a></div>
+	            <div id="tab_space_lateral"><a href="#sub_4" class="lnk_text">Results related to the k optimisation</a></div>	
+  	   	        </div>
+		      <BR>
+              <a name="sub_1"></a>
+	            <BR>
+		          
+		        <span class="title_paragraph">Test set results</span><BR>
+                <BR>
+                Once the AD methods have been <a href="gui_calculate.htm" class="lnk_text">calculated</a>, the model window in the main form is updated with the AD details (list 
+of AD methods calculated, number of test samples excluded from the model
+ AD). It is possible the see the a resume of the results achieved on the test set by clicking &quot;results-&gt;test set  results&quot;. The following informations for each calculated AD method will be shown: options used to calculate the AD method, number of test samples inside the AD, number of test samples outside the AD, list of test samples outside the AD. This can be <a href="gui_file.htm" class="lnk_text">exported</a> as excel file too.<BR>
+	            <BR>
+		        [<a href="#top" class="lnk_text">-> top</a>]
+	            <BR>
+	            <BR> 
+  
+	          <a name="sub_2" id="sub_2"></a>
+	            <BR>
+		          
+	          <span class="title_paragraph">Consensus</span>
+	            <BR>
+	            <BR>
+	            A consensus analysis of all AD methods can be analysed by selecting &quot;results-&gt;view consensus&quot;.  A figure will appear with frequencies of test samples placed out of the AD by the calculated methods. <BR>
+	            <BR>
+	            [<a href="#top" class="lnk_text">-> top</a>] <BR>
+                <BR>
+                <a name="sub_3" id="sub_3"></a> <BR>
+                <span class="title_paragraph">William plot</span><BR>
+                <BR>
+                By selecting &quot;results-&gt;view William plot&quot;, a new form will appear. This analysis is available only if the AD method based on leverage is calculated. In this new form, it is possible to load the experimental and calculated responses for both training and test sets. Then, a plot of leverages versus standardised residuals is shown. Warning thresholds for both leverages and residuals are marked in red.<BR>
+  <BR>
+  [<a href="#top" class="lnk_text">-> top</a>] <BR>
+  <BR>
+  <a name="sub_4" id="sub_4"></a> <BR>
+  <span class="title_paragraph">   Results related to the k optimisation</span><BR>
+  <BR>
+  If an automatic (or user) selection of the best k value on the basis of a montecarlo procedure has been used for the kNN with variable k method (see details in <a href="gui_calculate.htm" class="lnk_text">this section</a>), then results of the k optimisation can be analysed by clicking &quot;results-&gt;view k results&quot;.  A box-and-whisker plot of distribution of test
+  samples (%) retained within the AD for different k values during 
+  k-optimization is shown. Details on this plot are given in the following paper: F. Sahigara, D. Ballabio, R. Todeschini, V. Consonni, Defining a novel k-Nearest Neighbours approach to assess the applicability domain of a QSAR model for reliable predictions, <em>Journal of Cheminformatics</em> (<strong>2013</strong>), 5:27, 1-9.<BR>
+  <BR>
+  [<a href="#top" class="lnk_text">-> top</a>] <BR>
+  <BR>
+  <BR>
+&nbsp;
+              </div>
+	      </div>
+		    <div id="tab_duo_contenitor" class="text">
+		      <div class="text"></div>
+	      </div></td>
+  		</tr>
+	  </table>
+
+    </div>
+
+    <div id="footer">
+		<iframe src="footer.htm" width="700" height="13" scrolling="no" frameborder="0">
+  			no i_frames allowed :: change browser
+	  	</iframe>
+	</div>
+</div>
+</body>
+</html>

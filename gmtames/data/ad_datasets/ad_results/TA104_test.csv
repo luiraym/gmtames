@@ -1,0 +1,6 @@
+Approach,Options,Test inside AD,Test outside AD,List of samples outside AD
+Bounding box,---,22,11,[2 4 7 8 9 11 13 14 22 26 31]
+Bounding box PCA,377 PCs,32,1,[5]
+Leverage,---,26,7,[1 4 10 22 26 31 33]
+Distance from centroid,euclidean,30,3,[22 26 31]
+Distance kNN - fixed k,euclidean,28,5,[4 10 22 26 31]
