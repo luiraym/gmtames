@@ -16,7 +16,7 @@ gmtames/
 │   ├── data/
 │   │   ├── ad_datasets/
 │   │   │   ├── ad_calc/
-│   │   │   │   ├── { ... Applicability Domain toolbox for MATLAB files ... }
+│   │   │   │   ├── ad_toolbox.rar
 │   │   │   │   └── gmtamesAD_script.m
 │   │   │   ├── ad_results/
 │   │   │   │   ├── { ... *_test.csv ... }
