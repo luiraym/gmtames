@@ -30,6 +30,14 @@ gmtames/
 │   │   │   ├── { ... gmtamesQSAR_*_train.csv ... }
 │   │   │   └── { ... gmtamesQSAR_*_val.csv ... }
 │   │   └── master_datasets/
+│   │       ├── master_dataset_curation/
+│   │       │   ├── raw_datasets/
+│   │       │   │   ├── EFSAP.csv
+│   │       │   │   ├── ISSSTY.csv
+│   │       │   │   ├── MHLW.csv
+│   │       │   │   └── OASIS.csv
+│   │       │   ├── gmtames_data_curation.svg
+│   │       │   └── gmtamesQSAR_structures.sdf
 │   │       ├── gmtamesQSAR_endpoints.csv
 │   │       └── gmtamesQSAR_fingerprints.csv
 │   ├── __main__.py
@@ -61,5 +69,5 @@ gmtames/
 ```
 
 # To do
-- [ ] Add master dataset curation KNIME workflow and files to `gmtames/gmtames/data/master_datasets/`
+- [x] ~~Add master dataset curation KNIME workflow and files to `gmtames/gmtames/data/master_datasets/`~~
 - [ ] Add protocol (code summary) section to `README.md`
