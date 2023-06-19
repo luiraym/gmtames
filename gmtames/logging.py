@@ -24,7 +24,7 @@ DATETIME_LOG_EXTENSION = datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')  + '.log'
 
 
 def generateLoggingConfig(path_to_output):
-    path_to_logs = path_to_output / 'logs/'
+    path_to_logs = path_to_output / 'experiment_logs/'
     path_to_logs.mkdir(exist_ok=True)
 
     logging_config = {

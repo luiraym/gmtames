@@ -30,13 +30,13 @@ logger = logging.getLogger('gmtames.mtg')
 
 
 
-def runMTGExperiment(args_tasks, path_to_output, device):
+def runMTGExperiment(args_tasks, testsplit, path_to_output, device):
     # Start MTG experiment
     logger.info('>>>> RUNNING MECHANISTIC TASK GROUPING EXPERIMENT')
     timer_start = timer()
 
     # Generate modelling datasets from base datasets
-    modelling_datasets, tasks = generateModellingDatasets(args_tasks)
+    modelling_datasets, tasks = generateModellingDatasets(args_tasks, testsplit)
 
     # Check if device on which to load data and run neural networks is valid
     device = checkDevice(device)

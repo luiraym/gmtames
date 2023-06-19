@@ -36,11 +36,13 @@ def parseArgs():
     data_mode.add_argument('--generateApplicabilityDomainDatasets', action='store_true')
     data_mode.add_argument('--describeBaseDatasets', action='store_true', help='calculate descriptive statistics for base datasets')
     data_mode.add_argument('--correlateBaseDatasets', action='store_true', help='compute strain task correlation matrix for base datasets')
+    data_mode.add_argument('--testsplit', required=True, help='specify algorithm used to split out the test set')
     data_mode.add_argument('--output', required=True, help='specify path to output folder')
 
     # Mechanistic task grouping experiment mode
     mtg_mode = subparser.add_parser('mtg', help='run mechanistic task grouping experiments')
     mtg_mode.add_argument('--tasks', required=True, help='specify task(s) to create n-task neural network')
+    mtg_mode.add_argument('--testsplit', required=True, help='specify algorithm used to split out the test set')
     mtg_mode.add_argument('--output', required=True, help='specify path to output folder')
     mtg_mode.add_argument('--device', default='cpu', help='specify "cuda:_" device; default "cpu"')
 
@@ -79,13 +81,13 @@ def startLogging():
 
 def main():
     if args.mode == 'data':
-        if args.generateBaseDatasets: generateBaseDatasets()
-        if args.generateApplicabilityDomainDatasets: generateApplicabilityDomainDatasets()
-        if args.describeBaseDatasets: describeBaseDatasets(path_to_output)
-        if args.correlateBaseDatasets: correlateBaseDatasets(save_heatmap=path_to_output)
+        if args.generateBaseDatasets: generateBaseDatasets(args.testsplit)
+        if args.generateApplicabilityDomainDatasets: generateApplicabilityDomainDatasets(args.testsplit)
+        if args.describeBaseDatasets: describeBaseDatasets(args.testsplit, path_to_output)
+        if args.correlateBaseDatasets: correlateBaseDatasets(args.testsplit, save_heatmap=path_to_output)
 
     if args.mode == 'mtg':
-        runMTGExperiment(args.tasks, path_to_output, args.device)
+        runMTGExperiment(args.tasks, args.testsplit, path_to_output, args.device)
 
     if args.mode == 'results':
         calculateResults(path_to_output)

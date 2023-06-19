@@ -10,6 +10,7 @@ Raymond Lui
 
 
 import copy
+import pathlib
 
 import pandas as pd
 import numpy as np
@@ -18,28 +19,29 @@ import matplotlib.pyplot as plt
 
 
 
-PATH_TO_MASTER_DATASETS = 'gmtames/data/master_datasets/gmtamesQSAR_'
-
-PATH_TO_BASE_DATASETS = 'gmtames/data/base_datasets/gmtamesQSAR_'
-
-PATH_TO_AD_DATASETS = 'gmtames/data/ad_datasets/gmtamesAD_'
-
 STRAIN_LIST = [
     'TA100', 'TA100_S9', 'TA102', 'TA102_S9', 'TA104', 'TA104_S9', 'TA1535', 'TA1535_S9',
     'TA1537', 'TA1537_S9', 'TA1538', 'TA1538_S9', 'TA97', 'TA97_S9', 'TA98', 'TA98_S9'
 ]
 
 BASE_DATASET_TYPE_LIST = ['train', 'val', 'test']
-
 MODELLING_DATASET_TYPE_LIST = ['train', 'val', 'trainval', 'test']
 
+PATH_TO_MASTER_DATASETS = pathlib.Path('gmtames/data/master_datasets/')
+PATH_TO_BASE_DATASETS = pathlib.Path('gmtames/data/base_datasets/')
+PATH_TO_AD_DATASETS = pathlib.Path('gmtames/data/ad_datasets/')
 
 
 
-def generateBaseDatasets():
+
+def generateBaseDatasets(testsplit):
     # Read master datasets from file
-    master_endpoints = pd.read_csv(PATH_TO_MASTER_DATASETS  + 'endpoints.csv')
-    master_fingerprints = pd.read_csv(PATH_TO_MASTER_DATASETS + 'fingerprints.csv')
+    master_fingerprints = pd.read_csv(PATH_TO_MASTER_DATASETS / 'gmtamesQSAR_fingerprints.csv')
+    master_endpoints = pd.read_csv(PATH_TO_MASTER_DATASETS  / ('gmtamesQSAR_endpoints_' + testsplit + '.csv'))
+
+    # Create directory in which to write base datasets to file
+    path_to_base_datasets_testsplit = PATH_TO_BASE_DATASETS / testsplit
+    path_to_base_datasets_testsplit.mkdir(exist_ok=True)
   
     for strain in STRAIN_LIST:
         for t in BASE_DATASET_TYPE_LIST:
@@ -60,12 +62,12 @@ def generateBaseDatasets():
             base_dataset.insert(len(base_dataset.columns), endpoint_col.name, endpoint_col)
 
             # Write base dataset to file
-            base_dataset.to_csv(PATH_TO_BASE_DATASETS + strain + '_' + t + '.csv', index=False)
+            base_dataset.to_csv(path_to_base_datasets_testsplit / ('gmtamesQSAR_' + strain + '_' + t + '.csv'), index=False)
 
     return None
 
 
-def generateModellingDatasets(selected_tasks):
+def generateModellingDatasets(selected_tasks, testsplit):
     task_list = selected_tasks.split(',')
     last_n_cols = -(len(task_list))
 
@@ -78,16 +80,16 @@ def generateModellingDatasets(selected_tasks):
     modelling_datasets = {}
     for t in MODELLING_DATASET_TYPE_LIST:
         if t in ['train', 'val', 'test']:
-            modelling_datasets[t] = pd.concat([pd.read_csv(PATH_TO_BASE_DATASETS + strain + '_' + t + '.csv') for strain in task_list])
+            modelling_datasets[t] = pd.concat([pd.read_csv(PATH_TO_BASE_DATASETS / testsplit / ('gmtamesQSAR_' + strain + '_' + t + '.csv')) for strain in task_list])
     
         elif t in ['trainval']:
             trainval_type_list = ['train', 'val']
-            trainval_dataset = pd.concat([pd.read_csv(PATH_TO_BASE_DATASETS + strain + '_' + t_ + '.csv') for strain in task_list for t_ in trainval_type_list])
+            trainval_dataset = pd.concat([pd.read_csv(PATH_TO_BASE_DATASETS / testsplit / ('gmtamesQSAR_' + strain + '_' + t_ + '.csv')) for strain in task_list for t_ in trainval_type_list])
             modelling_datasets[t] = trainval_dataset.sort_values('gmtamesQSAR_ID')
     
     for t, dataset in modelling_datasets.items():
         # Consolidate each raw train/val/test dataset by grouping together MultitaskAmesQSAR_ID duplicates
-        ## as_index=False to keep MultitaskAmesQSAR_IDs a separate column and not integrated as DataFrame indices
+        ## as_index=False to keep gmtamesQSAR_IDs a separate column and not integrated as DataFrame indices
         ## sort=False to prevent alphabetical sorting of MultitaskAmesQSAR_IDs (i.e. 1,10,100,1000,2,20,200,2000,...,9,90,900)
         # Take the first value of the each grouping since the MultitaskAmesQSAR_IDs should be the same
         dataset = dataset.groupby(by='gmtamesQSAR_ID', as_index=False, sort=False).first()
@@ -101,25 +103,29 @@ def generateModellingDatasets(selected_tasks):
     return modelling_datasets, task_list
 
 
-def generateApplicabilityDomainDatasets():
+def generateApplicabilityDomainDatasets(testsplit):
+    path_to_ad_datasets_testsplit = PATH_TO_AD_DATASETS / testsplit
+    path_to_ad_datasets_testsplit.mkdir(exist_ok=True)
+
     for strain in STRAIN_LIST:
-        modelling_datasets, task_list = generateModellingDatasets(strain)
+        modelling_datasets, task_list = generateModellingDatasets(strain, testsplit)
         
         for dataset in modelling_datasets:
             ad_dataset = modelling_datasets[dataset].drop(columns=['gmtamesQSAR_ID', strain])
-            ad_dataset.to_csv(PATH_TO_AD_DATASETS + strain + '_' + dataset + '.csv', index=False, header=False)
+            ad_dataset.to_csv(path_to_ad_datasets_testsplit / ('gmtamesAD_' + strain + '_' + dataset + '.csv'), index=False, header=False)
 
     return None
 
 
-def describeBaseDatasets(path_to_output):
-    path_to_output.mkdir(exist_ok=True)
+def describeBaseDatasets(testsplit, path_to_output):
+    path_to_exploratory_data_analysis = path_to_output / 'exploratory_data_analysis'
+    path_to_exploratory_data_analysis.mkdir(exist_ok=True)
 
     task_list_mod = [strain.replace('_', '+') for strain in STRAIN_LIST]
     final_stats = []
     
     for strain in STRAIN_LIST:
-        modelling_datasets, task_list = generateModellingDatasets(strain)
+        modelling_datasets, task_list = generateModellingDatasets(strain, testsplit)
         strain_stats = []
         
         total_dataset = pd.concat([modelling_datasets['train'], modelling_datasets['val'], modelling_datasets['test']])
@@ -149,7 +155,7 @@ def describeBaseDatasets(path_to_output):
     for strain in STRAIN_LIST:
         strain_ad = []
         for dataset in ad_datasets:
-            dataset_ad = pd.read_csv('gmtames/data/ad_datasets/ad_results/%s_%s.csv' % (strain, dataset))
+            dataset_ad = pd.read_csv(PATH_TO_AD_DATASETS / testsplit / 'ad_calc' / 'gmtamesAD_results' / ('%s_%s.csv' % (strain, dataset)))
             dataset_ad = dataset_ad.loc[:, ['Approach', 'Test inside AD', 'Test outside AD']]
             dataset_ad = dataset_ad.set_index('Approach')
             dataset_ad['AD'] = (dataset_ad['Test inside AD'] / (dataset_ad['Test inside AD'] + dataset_ad['Test outside AD'])) * 100
@@ -182,17 +188,17 @@ def describeBaseDatasets(path_to_output):
     published_stats = published_stats.loc[:, [('Total', 'Size'), ('Training', 'Size'), ('Validation', 'Size'), ('Test', 'Size')]]
     published_stats.columns = published_stats.columns.droplevel('Statistic')
 
-    published_stats.to_csv(path_to_output / 'gmtamesQSAR_descriptive_stats.csv')
+    published_stats.to_csv(path_to_exploratory_data_analysis / 'gmtamesQSAR_descriptive_stats.csv')
 
     return None
 
 
-def correlateBaseDatasets(save_heatmap=None):
-    path_to_output = save_heatmap
-    path_to_output.mkdir(exist_ok=True)
+def correlateBaseDatasets(testsplit, save_heatmap=None):
+    path_to_exploratory_data_analysis = save_heatmap / 'exploratory_data_analysis'
+    path_to_exploratory_data_analysis.mkdir(exist_ok=True)
     
     # Load modelling dataset for all strains
-    modelling_datasets, task_list = generateModellingDatasets(','.join(STRAIN_LIST))
+    modelling_datasets, task_list = generateModellingDatasets(','.join(STRAIN_LIST), testsplit)
     
     # Combine train/val/test modelling datasets and extract strain task labels
     concat_datasets = pd.concat([modelling_datasets['train'], modelling_datasets['val'], modelling_datasets['test']])
@@ -260,6 +266,6 @@ def correlateBaseDatasets(save_heatmap=None):
                         else:
                             ax.text(j, i, annotation, size='large', ha='center', va='center')
 
-        plt.savefig(path_to_output / 'gmtamesQSAR_heatmaps.svg', bbox_inches='tight')
+        plt.savefig(path_to_exploratory_data_analysis / 'gmtamesQSAR_heatmaps.svg', bbox_inches='tight')
 
     return strain_task_correlation

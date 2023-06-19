@@ -1,0 +1,1 @@
+{"n_layers": 2, "architecture": "bottom", "lr": 0.001, "n_epochs": 150, "best_trial_num": 4, "tasks": ["TA1538"]}

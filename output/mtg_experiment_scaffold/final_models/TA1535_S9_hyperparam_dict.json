@@ -1,0 +1,1 @@
+{"n_layers": 3, "architecture": "linear", "lr": 0.001, "n_epochs": 150, "best_trial_num": 86, "tasks": ["TA1535_S9"]}

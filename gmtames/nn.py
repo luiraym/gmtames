@@ -190,7 +190,7 @@ class NTaskNeuralNetworkFromOptuna(nn.Module):
         return torch.cat(preds, dim=1).float()
 
 
-def trainNTaskNeuralNetworkFromOptuna(trial, train_dataloader, tasks, path_to_output, device):
+def trainNTaskNeuralNetworkFromOptuna(trial, train_dataloader, tasks, device):
     # Instantiate neural network architecture with Optuna trial object
     n_input = list(train_dataloader)[0][0].size(dim=1)
     model = NTaskNeuralNetworkFromOptuna(trial, n_input, tasks).to(device)
@@ -233,7 +233,7 @@ class NTaskNeuralNetworkFromDict(nn.Module):
         return torch.cat(preds, dim=1).float()
 
 
-def trainNTaskNeuralNetworkFromDict(hyperparam_dict, train_dataloader, tasks, path_to_output, device):
+def trainNTaskNeuralNetworkFromDict(hyperparam_dict, train_dataloader, tasks, device):
     # Instatiate neural network with hyperparameter dict
     n_input = list(train_dataloader)[0][0].size(dim=1)
     model = NTaskNeuralNetworkFromDict(hyperparam_dict, n_input, tasks).to(device)
@@ -269,7 +269,7 @@ def evaluateNeuralNetwork(model, dataloader_with_id, tasks, save_predictions=Fal
                 assert path_to_output != None, 'Need to specify path_to_output to save test predictions'
                 assert gmtamesqsar_id.shape[0] == y_true.shape[0] == y_pred.shape[0], 'Dimension 0 mismatch found when checking test_id/y_true/y_pred shapes'
                 
-                path_to_test_predictions = path_to_output / ('test_predictions/')
+                path_to_test_predictions = path_to_output / 'test_predictions'
                 path_to_test_predictions.mkdir(exist_ok=True)
                 filename_id = '_'.join(tasks)
                 
@@ -285,7 +285,7 @@ def evaluateNeuralNetwork(model, dataloader_with_id, tasks, save_predictions=Fal
 
 def saveNeuralNetwork(model, hyperparam_dict, tasks, path_to_output):
     # Define path and filename
-    path_to_final_models = path_to_output / ('final_models/')
+    path_to_final_models = path_to_output / 'final_models'
     path_to_final_models.mkdir(exist_ok=True)
     filename_id = '_'.join(tasks)
 
@@ -304,7 +304,7 @@ def saveNeuralNetwork(model, hyperparam_dict, tasks, path_to_output):
 def computeOptunaObjective(trial, train_dataloader, val_dataloader_with_id, tasks, path_to_output, device):
     timer_start = timer()
     
-    model = trainNTaskNeuralNetworkFromOptuna(trial, train_dataloader, tasks, path_to_output, device)
+    model = trainNTaskNeuralNetworkFromOptuna(trial, train_dataloader, tasks, device)
     balacc, rocauc = evaluateNeuralNetwork(model, val_dataloader_with_id, tasks)
     
     timer_end = timer()
@@ -322,7 +322,7 @@ def computeOptunaObjective(trial, train_dataloader, val_dataloader_with_id, task
 
 
 def testFinalModel(hyperparam_dict, trainval_dataloader, test_dataloader_with_id, tasks, path_to_output, device):
-    model = trainNTaskNeuralNetworkFromDict(hyperparam_dict, trainval_dataloader, tasks, path_to_output, device)
+    model = trainNTaskNeuralNetworkFromDict(hyperparam_dict, trainval_dataloader, tasks, device)
     balacc, rocauc = evaluateNeuralNetwork(model, test_dataloader_with_id, tasks, save_predictions=True, path_to_output=path_to_output)
     
     logger.info('Final model test balacc:|%s' % balacc)

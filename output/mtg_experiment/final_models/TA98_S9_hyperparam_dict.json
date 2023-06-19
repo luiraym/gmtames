@@ -1,1 +1,0 @@
-{"n_layers": 3, "architecture": "top", "lr": 0.001, "n_epochs": 100, "best_trial_num": 19, "tasks": ["TA98_S9"]}

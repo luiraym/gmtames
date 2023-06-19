@@ -163,10 +163,10 @@ def loadTestPredictions(f):
 
 def calculateResults(path_to_output):
     # STEP 1: PREPARE DIRECTORIES AND METRICS
-    path_to_results = pathlib.Path(path_to_output / 'results/')
-    path_to_results.mkdir(exist_ok=True)
+    path_to_test_results = path_to_output / 'test_results'
+    path_to_test_results.mkdir(exist_ok=True)
 
-    path_to_test_predictions = path_to_output / ('test_predictions/')
+    path_to_test_predictions = path_to_output / 'test_predictions'
     test_predictions_dir = os.scandir(path_to_test_predictions)
 
     metrics = [
@@ -177,9 +177,9 @@ def calculateResults(path_to_output):
     ]
 
 
-    # STEP 2: CALCULATE FULL EXPERIMENT RESULTS FROM TEST PREDICTIONS (-> SUPPLEMENTARY INFO)
-    experiment_results_list = []
-    experiment_results_name_list = []
+    # STEP 2: CALCULATE FULL TEST RESULTS FROM TEST PREDICTIONS
+    full_results_list = []
+    full_results_name_list = []
 
     for f in test_predictions_dir:
         strain_dataset_dict, task_list = loadTestPredictions(f)
@@ -198,40 +198,40 @@ def calculateResults(path_to_output):
 
         grouping_results = pd.concat(grouping_results_list, keys=task_list_mod, axis=1)  # DataFrame[(metrics, statistics), tasks]
         grouping_results = grouping_results.T  # DataFrame[tasks, (metrics, statistics)]
-        experiment_results_list.append(grouping_results)
-        experiment_results_name_list.append(', '.join(task_list_mod))
+        full_results_list.append(grouping_results)
+        full_results_name_list.append(', '.join(task_list_mod))
 
-    experiment_results = pd.concat(experiment_results_list, keys=experiment_results_name_list, axis=0)  # DataFrame[(grouping, task), (metrics, statistics)]
-    experiment_results.columns.names = ['Metric', 'Statistic']
-    experiment_results.index.names = ['Strain task grouping', 'Strain task']
-    experiment_results = experiment_results.swaplevel('Strain task grouping', 'Strain task')  # DataFrame[(task, grouping), (metrics, statistics)]
-    experiment_results = experiment_results.sort_index(level='Strain task')
+    full_results = pd.concat(full_results_list, keys=full_results_name_list, axis=0)  # DataFrame[(grouping, task), (metrics, statistics)]
+    full_results.columns.names = ['Metric', 'Statistic']
+    full_results.index.names = ['Strain task grouping', 'Strain task']
+    full_results = full_results.swaplevel('Strain task grouping', 'Strain task')  # DataFrame[(task, grouping), (metrics, statistics)]
+    full_results = full_results.sort_index(level='Strain task')
 
-    for task in experiment_results.index.unique(level='Strain task'):
-        for grouping in experiment_results.loc[task].index:
+    for task in full_results.index.unique(level='Strain task'):
+        for grouping in full_results.loc[task].index:
             grouping_list = grouping.split(', ')
             
-            if len(grouping_list) == 1.0: architecture = 'ST'
-            if len(grouping_list) == 16.0: architecture = 'uMT'
-            if len(grouping_list) > 1.0 and len(grouping_list) < 16.0: architecture = 'gMT'
-            experiment_results.loc[(task, grouping), 'Learning architecture'] = architecture
+            if len(grouping_list) == 1.0: architecture = 'STL'
+            if len(grouping_list) == 16.0: architecture = 'uMTL'
+            if len(grouping_list) > 1.0 and len(grouping_list) < 16.0: architecture = 'gMTL'
+            full_results.loc[(task, grouping), 'Learning architecture'] = architecture
             
     # Specify stable sort algorithm to ensure consecutive sorts are carried over
-    experiment_results.sort_values([('Balanced accuracy', 'Observed'), ('ROC AUC', 'Observed'), ('Sensitivity', 'Observed'), ('Specificity', 'Observed')], ascending=False, kind='stable', inplace=True)
-    experiment_results.sort_values('Learning architecture', key=lambda x: x.map({'ST': 0, 'uMT': 1, 'gMT': 2}), kind='stable', inplace=True)
-    experiment_results.sort_index(level='Strain task', sort_remaining=False, kind='stable', inplace=True)
+    full_results.sort_values([('Balanced accuracy', 'Observed'), ('ROC AUC', 'Observed'), ('Sensitivity', 'Observed'), ('Specificity', 'Observed')], ascending=False, kind='stable', inplace=True)
+    full_results.sort_values('Learning architecture', key=lambda x: x.map({'STL': 0, 'uMTL': 1, 'gMTL': 2}), kind='stable', inplace=True)
+    full_results.sort_index(level='Strain task', sort_remaining=False, kind='stable', inplace=True)
     
-    experiment_results.set_index('Learning architecture', append=True, inplace=True)
-    experiment_results = experiment_results.swaplevel('Strain task grouping', 'Learning architecture')  # DataFrame[(task, architecture, grouping), (metrics, statistics)]
+    full_results.set_index('Learning architecture', append=True, inplace=True)
+    full_results = full_results.swaplevel('Strain task grouping', 'Learning architecture')  # DataFrame[(task, architecture, grouping), (metrics, statistics)]
     
     def computeSignificance(df):
         metric = df.columns.unique(level='Metric')[0]
         for task in df.index.unique(level='Strain task'):
-            st_upper_83 = df.loc[(task, 'ST'), (metric, '91.5%')].values[0]
-            st_upper_95 = df.loc[(task, 'ST'), (metric, '97.5%')].values[0]
+            st_upper_83 = df.loc[(task, 'STL'), (metric, '91.5%')].values[0]
+            st_upper_95 = df.loc[(task, 'STL'), (metric, '97.5%')].values[0]
             for architecture, grouping in df.loc[task].index:
                 significance = 'NS'  # Reset significance to "Not Significant" and only reassign var if fulfils the below conditions
-                if architecture == 'ST': significance = '-'
+                if architecture == 'STL': significance = '-'
                 else:
                     mt_lower_83 = df.loc[(task, architecture, grouping), (metric, '8.5%')]
                     mt_lower_95 = df.loc[(task, architecture, grouping), (metric, '2.5%')]
@@ -239,13 +239,13 @@ def calculateResults(path_to_output):
                     if mt_lower_95 > st_upper_95: significance = '**'  # Don't use elif as that will evaluate the 83% condition, stop if true, and not proceed with the 95% condition
                 df.loc[(task, architecture, grouping), (metric, 'Significance')] = significance
         return df
-    experiment_results = experiment_results.groupby(axis='columns', level='Metric', group_keys=False).apply(computeSignificance)  # https://github.com/dask/dask/issues/4592
+    full_results = full_results.groupby(axis='columns', level='Metric', group_keys=False).apply(computeSignificance)  # https://github.com/dask/dask/issues/4592
 
-    experiment_results.to_csv(path_to_results / 'gmtames_full_experiment_results.csv')
+    full_results.to_csv(path_to_test_results / 'gmtames_full_results.csv')
 
     
-    # STEP 3: PARSE FULL EXPERIMENT RESULTS INTO ... 
-    curated_results = copy.deepcopy(experiment_results)
+    # STEP 3: PARSE FULL TEST RESULTS INTO ... 
+    curated_results = copy.deepcopy(full_results)
     curated_results.rename(columns={
         'Balanced accuracy': 'Balanced accuracy full',
         'ROC AUC': 'ROC AUC full',
@@ -272,38 +272,38 @@ def calculateResults(path_to_output):
         return df
 
 
-    # STEP 3A: ... CURATED STRAIN RESULTS (-> TABLES 2, 3)
-    strain_results = curated_results.groupby(axis='columns', level='Metric', group_keys=False).apply(_parseStatistics)
+    # STEP 3A: ... CURATED TASK-SPECIFIC RESULTS
+    task_results = curated_results.groupby(axis='columns', level='Metric', group_keys=False).apply(_parseStatistics)
     
-    strain_results = strain_results.loc[:, ['Balanced accuracy', 'ROC AUC']]
-    strain_results.columns = strain_results.columns.droplevel('Statistic')
+    task_results = task_results.loc[:, ['Balanced accuracy', 'Sensitivity', 'Specificity', 'ROC AUC']]
+    task_results.columns = task_results.columns.droplevel('Statistic')
+    
+    task_results.reset_index('Strain task grouping', inplace=True)
+    task_groupings = task_results.pop('Strain task grouping').loc[(slice(None), 'gMTL')]
 
-    substitution_results = strain_results.loc[['TA100', 'TA100+S9', 'TA102', 'TA102+S9', 'TA104', 'TA104+S9', 'TA1535', 'TA1535+S9'], :]
-    frameshift_results = strain_results.loc[['TA1537', 'TA1537+S9', 'TA1538', 'TA1538+S9', 'TA97', 'TA97+S9', 'TA98', 'TA98+S9'], :]
-
-    substitution_results.to_csv(path_to_results / 'gmtames_curated_substitution_results.csv')
-    frameshift_results.to_csv(path_to_results / 'gmtames_curated_frameshift_results.csv')
+    task_results.to_csv(path_to_test_results / 'gmtames_curated_task_results.csv')
+    task_groupings.to_csv(path_to_test_results / 'gmtames_curated_task_groupings.csv')
 
 
-    # STEP 3B: ... INTO CURATED AVERAGE RESULTS (-> TABLE 4)
-    average_results = curated_results.groupby(level='Learning architecture', sort=False).mean(numeric_only=True)
+    # STEP 3B: ... INTO CURATED TASK-AVERAGED RESULTS
+    averaged_results = curated_results.groupby(level='Learning architecture', sort=False).mean(numeric_only=True)
     
     overall_results = curated_results.reset_index('Learning architecture')
     overall_results.sort_values([('Balanced accuracy full', 'Observed'), ('ROC AUC full', 'Observed'), ('Sensitivity full', 'Observed'), ('Specificity full', 'Observed')], ascending=False, kind='stable', inplace=True)
-    overall_results = overall_results.groupby(level='Strain task', sort=False).first()  # Checkpoint - best learning architecture for each strain (to be bolded in Tables 2, 3)
+    overall_results = overall_results.groupby(level='Strain task', sort=False).first()
     overall_results['Learning architecture'] = 'Overall'
     overall_results.set_index('Learning architecture', append=True, inplace=True)
     overall_results = overall_results.groupby(level='Learning architecture').mean(numeric_only=True)
 
-    average_results = pd.concat([average_results, overall_results])
+    averaged_results = pd.concat([averaged_results, overall_results])
         
     def _computeSignificanceMod(df):
         metric = df.columns.unique(level='Metric')[0]
-        st_upper_83 = df.loc['ST', (metric, '91.5%')]
-        st_upper_95 = df.loc['ST', (metric, '97.5%')]
+        st_upper_83 = df.loc['STL', (metric, '91.5%')]
+        st_upper_95 = df.loc['STL', (metric, '97.5%')]
         for architecture in df.index:
             significance = 'NS'
-            if architecture == 'ST': significance = '-'
+            if architecture == 'STL': significance = '-'
             else:
                 mt_lower_83 = df.loc[architecture, (metric, '8.5%')]
                 mt_lower_95 = df.loc[architecture, (metric, '2.5%')]
@@ -311,10 +311,10 @@ def calculateResults(path_to_output):
                 if mt_lower_95 > st_upper_95: significance = '**'
             df.loc[architecture, (metric, 'Significance')] = significance
         return df
-    average_results = average_results.groupby(axis='columns', level='Metric', group_keys=False).apply(_computeSignificanceMod)
-    average_results = average_results.groupby(axis='columns', level='Metric', group_keys=False).apply(_parseStatistics)
+    averaged_results = averaged_results.groupby(axis='columns', level='Metric', group_keys=False).apply(_computeSignificanceMod)
+    averaged_results = averaged_results.groupby(axis='columns', level='Metric', group_keys=False).apply(_parseStatistics)
 
-    average_results = average_results.loc[:, ['Balanced accuracy', 'ROC AUC']]
-    average_results.columns = average_results.columns.droplevel('Statistic')
+    averaged_results = averaged_results.loc[:, ['Balanced accuracy', 'Sensitivity', 'Specificity', 'ROC AUC']]
+    averaged_results.columns = averaged_results.columns.droplevel('Statistic')
     
-    average_results.to_csv(path_to_results / 'gmtames_curated_average_results.csv')
+    averaged_results.to_csv(path_to_test_results / 'gmtames_curated_averaged_results.csv')
